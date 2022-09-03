@@ -1,18 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: riker-ingress
-  namespace: team-riker
+  name: target-ingress
+  namespace: team-rolling-targets
   annotations:
 {{ if eq .Values.spec.ingress.type "alb" }}  
     #rewrite does not exist yet in ALB
     #https://github.com/kubernetes-sigs/aws-load-balancer-controller/issues/1571
     #so commenting grouping feature
-    #alb.ingress.kubernetes.io/group.name: riker
+    #alb.ingress.kubernetes.io/group.name: rolling-targets
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    alb.ingress.kubernetes.io/tags: Environment=dev,Team=Riker
+    alb.ingress.kubernetes.io/tags: Environment=dev,Team=Rolling-Targets
 {{ end }}
 spec:
 {{ if eq .Values.spec.ingress.type "nginx" }}  
@@ -22,7 +22,7 @@ spec:
 {{ end }}  
   rules:
 {{ if not (eq .Values.spec.ingress.host "dev.example.com") }}
-  - host: guestbook-ui.{{ .Values.spec.ingress.host }}
+  - host: target-service.{{ .Values.spec.ingress.host }}
 {{ else }}
   - host:  
 {{ end }}  
@@ -32,7 +32,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: guestbook-ui
+            name: target-service
             port: 
               number: 80
         
